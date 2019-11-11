@@ -19,7 +19,7 @@ frb_bw = data[:,4]              #MHz
 frb_center = data[:,5]     #MHz
 frb_s = data[:,6]               #in Jansky
 frb_flux = data[:,7]            #in Jy ms
-frb_widht = data[:,8]           #in ms
+frb_width = data[:,8]           #in ms
 frb_DM = data[:,9]              #cm**-3*pc
 
 for i in range(len(frb_DM)):
@@ -139,7 +139,39 @@ plt.show()
 
 
 
+def franco_style(f1,f2,chann,d_,Tsys_):
+  bw = (f2-f1)*10.**6*u.Hz
+  d = d_*u.m
+  Tsys = Tsys_*u.K
+  ef = 1#0.8
+  Ae= (d/2)**2*np.pi*ef
+  delta_f = np.linspace(f1,f2,channels, endpoint=False)
+  delta_f = delta_f[1]-delta_f[0]
+  bw = (f2-f1)*10**6
+  fpga_clk = bw/8
+  bram_cycles = 2. #how many cycles are saved in one addr of the dram
+  dram_time = 2**24*bram_cycles/(fpga_clk)
+  
+  #frb time
+  frb_DM2 = np.sort(frb_DM)
+  tau = frb_width
+  aux = np.where(tau<dram_time*1000)
+  t_DM = 8.3*10**6*frb_DM2*delta_f*(f1**(-3))
 
+  tau = frb_width*u.ms
+  aux = np.where(tau.value>dram_time*1000)
+  SNR = frb_s*u.Jy*Ae/(2*cte.k_B*Tsys)*np.sqrt(tau*bw)
+  SNR = SNR.decompose()
+  SNR2 = np.copy(SNR)
+  if np.size(aux)==0:
+      pass
+  else:
+      SNR2[aux] = (frb_s[aux]*u.Jy*Ae/(2*cte.k_B*Tsys)*np.sqrt(dram_time*bw)).decompose()
+  plt.figure()
+  plt.title('SNR')
+  plt.plot(SNR2[np.logical_not(ind_nan)], '*-')
+  plt.ylabel('SNR lineal')
+  plt.show()
 
 
 
