@@ -54,7 +54,7 @@ t = 4.15*10**6*(1./(frb_init_frec[askap_index])**2-1./(frb_end_frec[askap_index]
 
 #print(str(t)+' [ms]')
 
-#print('\n'+'FRB170827:')
+print('\n'+'FRB170827:')
 
 
 #frb170827 --- we have the image :) UTMOST
